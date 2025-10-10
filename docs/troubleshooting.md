@@ -1400,7 +1400,6 @@ helm search repo k8s-devops-suite
 
 - [Deployment Guide](./deployment-guide.md) - Deploy the suite
 - [Configuration Guide](./configuration.md) - Customize your setup
-- [Security Guide](./security.md) - Harden your deployment
 
 ---
 

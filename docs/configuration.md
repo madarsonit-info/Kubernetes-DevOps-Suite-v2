@@ -1185,7 +1185,3 @@ kubectl rollout restart statefulset/prometheus -n monitoring
 
 - [Deployment Guide](./deployment-guide.md) - Deploy the suite
 - [Troubleshooting Guide](./troubleshooting.md) - Resolve issues
-- [Security Guide](./security.md) - Harden your deployment
-
----
-
