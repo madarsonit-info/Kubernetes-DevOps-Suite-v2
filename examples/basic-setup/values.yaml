@@ -1,0 +1,360 @@
+# Basic Setup Configuration
+# Suitable for development and small staging environments
+
+global:
+  namespace: monitoring
+  storageClass: default  # Change to your storage class (e.g., managed-premium for Azure)
+
+# Prometheus Configuration
+prometheus:
+  enabled: true
+  retention: 7d
+  retentionSize: 25GB
+  
+  # Storage
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: default
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 30Gi
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      cpu: 1000m
+      memory: 4Gi
+  
+  # Scrape configuration
+  scrapeInterval: 30s
+  evaluationInterval: 30s
+  
+  # Single replica (no HA)
+  replicas: 1
+
+# AlertManager Configuration
+alertmanager:
+  enabled: true
+  
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: default
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+  
+  # Basic email configuration (update with your SMTP details)
+  config:
+    global:
+      resolve_timeout: 5m
+    
+    route:
+      group_by: ['alertname', 'cluster']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+    
+    receivers:
+      - name: 'default'
+        # email_configs:
+        #   - to: 'team@example.com'
+        #     from: 'alertmanager@example.com'
+        #     smarthost: 'smtp.gmail.com:587'
+        #     auth_username: 'alertmanager@example.com'
+        #     auth_password: 'your-app-password'
+
+# Grafana Configuration
+grafana:
+  enabled: true
+  
+  # Admin credentials (change these!)
+  adminUser: admin
+  adminPassword: prom-operator  # CHANGE THIS!
+  
+  # Persistence
+  persistence:
+    enabled: true
+    storageClassName: default
+    size: 5Gi
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  # Single replica
+  replicas: 1
+  
+  # Datasources (pre-configured)
+  datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus:9090
+      access: proxy
+      isDefault: true
+    
+    - name: Loki
+      type: loki
+      url: http://loki:3100
+      access: proxy
+
+# Loki Configuration
+loki:
+  enabled: true
+  
+  # Retention
+  retention:
+    enabled: true
+    period: 168h  # 7 days
+  
+  # Storage
+  persistence:
+    enabled: true
+    storageClassName: default
+    size: 40Gi
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  
+  # Single replica
+  replicas: 1
+  
+  # Basic configuration
+  config:
+    auth_enabled: false
+    
+    ingester:
+      chunk_idle_period: 3m
+      chunk_retain_period: 1m
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+    
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      ingestion_rate_mb: 4
+      ingestion_burst_size_mb: 6
+    
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+    
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /data/loki/boltdb-shipper-active
+        cache_location: /data/loki/boltdb-shipper-cache
+        cache_ttl: 24h
+        shared_store: filesystem
+      filesystem:
+        directory: /data/loki/chunks
+
+# Promtail Configuration
+promtail:
+  enabled: true
+  
+  # Deploy as DaemonSet on all nodes
+  daemonset:
+    enabled: true
+  
+  # Resources (per node)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  
+  # Configuration
+  config:
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+    
+    positions:
+      filename: /tmp/positions.yaml
+    
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: __host__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - action: replace
+            replacement: $1
+            separator: /
+            source_labels:
+              - __meta_kubernetes_namespace
+              - __meta_kubernetes_pod_name
+            target_label: job
+          - action: replace
+            source_labels:
+              - __meta_kubernetes_namespace
+            target_label: namespace
+          - action: replace
+            source_labels:
+              - __meta_kubernetes_pod_name
+            target_label: pod
+          - action: replace
+            source_labels:
+              - __meta_kubernetes_pod_container_name
+            target_label: container
+          - replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
+
+# Falco Security Configuration
+falco:
+  enabled: true
+  
+  # Image
+  image:
+    repository: falcosecurity/falco
+    tag: latest
+  
+  # Resources (per node)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+  
+  # Use eBPF probe (more compatible)
+  ebpf:
+    enabled: true
+  
+  # Custom rules enabled
+  customRules:
+    enabled: true
+
+# Falco Sidekick (for alert forwarding)
+falcosidekick:
+  enabled: false  # Enable and configure if needed
+  
+  # config:
+  #   slack:
+  #     webhookurl: ""
+  #     minimumpriority: "warning"
+
+# Trivy Scanner Configuration
+trivy:
+  enabled: true
+  
+  # Scan schedule (daily at 2 AM)
+  schedule: "0 2 * * *"
+  
+  # Scan configuration
+  scanConfig:
+    severity: "CRITICAL,HIGH"
+    vuln-type: "os,library"
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+# Kube-State-Metrics
+kubeStateMetrics:
+  enabled: true
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Node Exporter (DaemonSet)
+nodeExporter:
+  enabled: true
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# RBAC
+rbac:
+  create: true
+
+# Service Accounts
+serviceAccount:
+  create: true
+
+# Security Context
+podSecurityPolicy:
+  enabled: false  # Enable if your cluster requires PSP
+
+# Network Policies
+networkPolicies:
+  enabled: false  # Enable for production
+
+# Ingress (disabled by default, use port-forward or configure)
+ingress:
+  enabled: false
+  
+  # To enable:
+  # className: nginx
+  # grafana:
+  #   enabled: true
+  #   hosts:
+  #     - host: grafana.example.com
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  #   tls: []
+
+# High Availability (disabled for basic setup)
+highAvailability:
+  enabled: false

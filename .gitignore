@@ -1,0 +1,98 @@
+# Kubernetes
+kubeconfig
+*.kubeconfig
+*-kubeconfig.yaml
+
+# Helm
+*.tgz.bak
+*.backup
+.helmignore
+
+# Build artifacts
+*.tar.gz
+dist/
+build/
+bin/
+target/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+v*.txt
+*-logs.txt
+
+# Credentials and Secrets
+*-creds.yaml
+*-credentials.yaml
+secrets/
+*.key
+*.pem
+*.crt
+*.p12
+.env
+.env.local
+
+# Test outputs
+coverage/
+test-results/
+*.test
+*.out
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.cache/
+
+# Debug bundles
+debug-bundle/
+debug-bundle-*.tar.gz
+cluster-dump/
+
+# Porter
+.cnab/
+porter-debug.txt
+
+# Azure
+.azure/
+
+# Git branches folder (if created by mistake)
+branches/
+objects/
+refs/
+
+# Node modules (if using any JS tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (if using any Python tooling)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+
+# Go
+go.sum.bak
+vendor/
+
+# Backup files
+*.bak
+*~
+
+# Rendered templates
+rendered/
+
+# Custom values with sensitive data
+*-sensitive-values.yaml
+prod-values.yaml.backup
