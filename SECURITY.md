@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-Please report security vulnerabilities to: security@madarson.com
+Please report security vulnerabilities to: info@madarson.com
 
 **Do not** create public GitHub issues for security vulnerabilities.
 
