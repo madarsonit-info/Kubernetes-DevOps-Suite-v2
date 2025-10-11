@@ -14,8 +14,6 @@ This document provides comprehensive security best practices for securing Kubern
 - **Use short-lived credentials**: Integrate with OIDC or Azure AD; avoid static kubeconfigs.
 - **Audit API access**: Enable audit logging to track all API server requests.
 ```bash
-```
-
 # Verify RBAC is enabled
 kubectl get clusterrole prometheus
 kubectl get clusterrolebinding prometheus
@@ -24,8 +22,6 @@ kubectl get clusterrolebinding prometheus
 kubectl describe clusterrole prometheus
 Grafana Security
 ```yaml
-```
-
 # Strong password requirements
 grafana:
   adminPassword: "UseAStrongPasswordHere!"  # CHANGE THIS!
@@ -49,8 +45,6 @@ Default to deny-all, then explicitly allow required traffic
 Restrict Prometheus, Grafana, and Loki access
 
 ```yaml
-```
-
 # Example: Restrict Prometheus access
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -112,8 +106,6 @@ yamltrivy:
     ignoreUnfixed: false
 Review Scan Results
 ```bash
-```
-
 # Check scan results
 kubectl logs -n monitoring -l app=trivy --tail=100
 
@@ -137,8 +129,6 @@ yamlfalco:
     enabled: true
 Custom Falco Rules for DevOps Suite
 ```yaml
-```
-
 # Place in helm-chart/rules/devops-security.yaml
 - rule: Unauthorized Access to Prometheus Data
   desc: Detect unauthorized access to Prometheus data directory
@@ -187,8 +177,6 @@ TLS everywhere: Ensure all traffic between components is encrypted
 
 Using Kubernetes Secrets
 ```bash
-```
-
 # Create secret for sensitive data
 kubectl create secret generic alertmanager-config \
   --from-literal=slack-webhook='https://hooks.slack.com/...' \
@@ -225,8 +213,6 @@ Custom dashboards for Falco events
 Track vulnerability scan results
 
 ```bash
-```
-
 # Monitor Falco events in real-time
 kubectl logs -f -n monitoring -l app=falco
 
@@ -276,8 +262,6 @@ Test in staging before production
 Maintain rollback procedures
 
 ```bash
-```
-
 # Deploy with atomic flag
 helm install k8s-devops-suite ./helm-chart \
   --namespace monitoring \
@@ -295,8 +279,6 @@ Optional privileged workloads: Clearly document that Falco requires privileged p
 
 Storage Configuration
 ```yaml
-```
-
 # Use premium storage for production
 global:
   storageClass: managed-premium  # Azure Premium SSD
@@ -306,8 +288,6 @@ global:
   storageClass: azurefile
 Resource Sizing Guidance
 ```yaml
-```
-
 # Minimum for basic setup (development)
 # 3 nodes × Standard_D4s_v3 (4 vCPUs, 16GB RAM)
 
@@ -332,8 +312,6 @@ Right to deletion supported
 
 Audit Logging
 ```yaml
-```
-
 # Enable Kubernetes audit logs for monitoring namespace
 apiVersion: audit.k8s.io/v1
 kind: Policy
@@ -354,8 +332,6 @@ Lessons Learned: Update security rules
 
 Response Procedures
 ```bash
-```
-
 # 1. Check Falco alerts
 kubectl logs -n monitoring -l app=falco --tail=100 | grep CRITICAL
 
