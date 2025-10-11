@@ -33,7 +33,7 @@ grafana:
     GF_USERS_ALLOW_SIGN_UP: "false"
 Important: Never ship with default passwords. Customer-configurable passwords must be set during deployment.
 
-2. Network & Workload Isolation
+## 2. Network & Workload Isolation
 Namespaces
 
 Separate workloads by team or environment
@@ -89,7 +89,7 @@ yamlingress:
       hosts:
         - grafana.yourdomain.com
 
-3. Image & Supply Chain Security
+## 3. Image & Supply Chain Security
 Container Image Security
 
 Scan images: Use Trivy or equivalent to detect vulnerabilities before deployment
@@ -112,7 +112,7 @@ kubectl logs -n monitoring -l app=trivy --tail=100
 # Export results for compliance
 kubectl logs -n monitoring trivy-scanner-xxx > scan-results.json
 
-4. Runtime Security
+## 4. Runtime Security
 Falco Runtime Detection
 
 Enable runtime detection of suspicious activity (e.g., unexpected kubectl execution)
@@ -168,7 +168,7 @@ yamlsecurityContext:
     drop:
     - ALL
 
-5. Data Protection
+## 5. Data Protection
 Secrets Management
 
 Encrypt secrets at rest: Enable etcd encryption for Kubernetes secrets
@@ -193,7 +193,7 @@ spec:
       authType: ManagedIdentity
       vaultUrl: https://your-keyvault.vault.azure.net
 
-6. Monitoring & Logging
+## 6. Monitoring & Logging
 Centralized Logging
 
 Use Loki + Promtail for log aggregation
@@ -220,7 +220,7 @@ kubectl logs -f -n monitoring -l app=falco
 kubectl port-forward -n monitoring svc/alertmanager 9093:9093
 # Visit: http://localhost:9093
 
-7. Cluster & Node Hardening
+## 7. Cluster & Node Hardening
 Kubernetes Updates
 
 Keep Kubernetes updated: Apply control plane and node patches promptly
@@ -241,7 +241,7 @@ Enable Azure Defender for Kubernetes
 Configure diagnostic settings
 
 
-8. CI/CD & Deployment Security
+## 8. CI/CD & Deployment Security
 Shift-Left Security
 
 Scan Helm charts and manifests for misconfigurations before deployment
@@ -269,7 +269,7 @@ helm install k8s-devops-suite ./helm-chart \
   --atomic \
   --timeout 10m
 
-9. Azure Marketplace-Specific Recommendations
+## 9. Azure Marketplace-Specific Recommendations
 Secure Defaults
 
 Customer-configurable passwords: Ensure Grafana and other components never ship with defaults
@@ -294,7 +294,7 @@ Resource Sizing Guidance
 # Recommended for production
 # 5+ nodes × Standard_D8s_v3 (8 vCPUs, 32GB RAM)
 
-10. Compliance & Audit
+## 10. Compliance & Audit
 CIS Benchmark Alignment
 
 ✅ Non-root containers
@@ -320,7 +320,7 @@ rules:
   namespaces: ["monitoring"]
   verbs: ["create", "update", "patch", "delete"]
 
-11. Incident Response
+## 11. Incident Response
 Security Event Monitoring
 
 Detection: Falco triggers alert
@@ -343,54 +343,6 @@ kubectl get pods -n monitoring -o wide
 
 # 4. Review access logs
 kubectl logs -n kube-system -l component=kube-apiserver
-
-Security Checklist
-Pre-Deployment
-
- Strong passwords configured (no defaults)
- Storage class explicitly set
- Resource requests/limits defined
- RBAC roles reviewed
- Network policies prepared (if required)
-
-Post-Deployment
-
- Change default passwords immediately
- Enable TLS for external access
- Configure backup schedule
- Set up alerting channels (email/Slack)
- Review Falco rules and test alerts
- Run initial Trivy scan
- Enable audit logging
- Document custom configurations
-
-Ongoing Operations
-
- Regular vulnerability scans
- Monitor security alerts
- Review access logs monthly
- Update components quarterly
- Test backup/recovery procedures
- Security training for team
- Incident response drills
----
-
-## References
-
-- [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
-- [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
-- [Falco Runtime Security](https://falco.org/)
-- [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
-- [Azure AKS Security Best Practices](https://docs.microsoft.com/azure/aks/security-best-practices)
-- [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes)
-
----
-
-**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
-
----
-
-For configuration details, see [Configuration Guide](configuration.md).  
 
 ## Security Checklist
 
@@ -438,4 +390,5 @@ For configuration details, see [Configuration Guide](configuration.md).
 ---
 
 For configuration details, see [Configuration Guide](configuration.md).  
+
 For troubleshooting security issues, see [Troubleshooting Guide](troubleshooting.md).
