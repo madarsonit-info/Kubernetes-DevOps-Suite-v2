@@ -538,6 +538,6 @@ porter list
 
 - [Configuration Guide](./configuration.md) - Customize your deployment
 - [Troubleshooting Guide](./troubleshooting.md) - Resolve common issues
-
+- [Security Best Practices](./security.md) - Harden your deployment
 ---
 

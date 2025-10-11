@@ -314,7 +314,6 @@ See [releases](../../releases) for detailed changelogs.
 
 ## 📄 License
 
-[Add your license information]
 
 ---
 
