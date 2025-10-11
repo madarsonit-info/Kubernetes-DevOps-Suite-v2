@@ -21,11 +21,10 @@ kubectl get clusterrolebinding prometheus
 # Review service account permissions
 kubectl describe clusterrole prometheus
 Grafana Security
-```yaml
-# Strong password requirements
+yaml# Strong password requirements
 grafana:
   adminPassword: "UseAStrongPasswordHere!"  # CHANGE THIS!
-
+  
   env:
     GF_SECURITY_ADMIN_PASSWORD__FILE: /etc/secrets/admin-password
     GF_AUTH_ANONYMOUS_ENABLED: "false"
@@ -44,8 +43,7 @@ Network Policies
 Default to deny-all, then explicitly allow required traffic
 Restrict Prometheus, Grafana, and Loki access
 
-```yaml
-# Example: Restrict Prometheus access
+yaml# Example: Restrict Prometheus access
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -79,15 +77,6 @@ metadata:
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
-TLS/SSL for External Access
-yamlingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-  tls:
-    - secretName: monitoring-tls
-      hosts:
-        - grafana.yourdomain.com
 
 3. Image & Supply Chain Security
 Container Image Security
@@ -105,8 +94,7 @@ yamltrivy:
     severity: "CRITICAL,HIGH"
     ignoreUnfixed: false
 Review Scan Results
-```bash
-# Check scan results
+bash# Check scan results
 kubectl logs -n monitoring -l app=trivy --tail=100
 
 # Export results for compliance
@@ -121,15 +109,14 @@ Custom rules: Tailor detection rules to your environment
 
 yamlfalco:
   enabled: true  # Set to false if privileged pods not allowed
-
+  
   ebpf:
     enabled: true  # Recommended over kernel module
-
+  
   customRules:
     enabled: true
 Custom Falco Rules for DevOps Suite
-```yaml
-# Place in helm-chart/rules/devops-security.yaml
+yaml# Place in helm-chart/rules/devops-security.yaml
 - rule: Unauthorized Access to Prometheus Data
   desc: Detect unauthorized access to Prometheus data directory
   condition: >
@@ -176,8 +163,7 @@ External secret managers: Integrate with Azure Key Vault or HashiCorp Vault for 
 TLS everywhere: Ensure all traffic between components is encrypted
 
 Using Kubernetes Secrets
-```bash
-# Create secret for sensitive data
+bash# Create secret for sensitive data
 kubectl create secret generic alertmanager-config \
   --from-literal=slack-webhook='https://hooks.slack.com/...' \
   -n monitoring
@@ -212,8 +198,7 @@ Pre-configured Grafana dashboards provide compliance visibility
 Custom dashboards for Falco events
 Track vulnerability scan results
 
-```bash
-# Monitor Falco events in real-time
+bash# Monitor Falco events in real-time
 kubectl logs -f -n monitoring -l app=falco
 
 # Check AlertManager for security alerts
@@ -261,8 +246,7 @@ Ensure pods can schedule with right-sized resources
 Test in staging before production
 Maintain rollback procedures
 
-```bash
-# Deploy with atomic flag
+bash# Deploy with atomic flag
 helm install k8s-devops-suite ./helm-chart \
   --namespace monitoring \
   --values values.yaml \
@@ -278,8 +262,7 @@ Secure defaults: Provide resource requests/limits that work on standard AKS node
 Optional privileged workloads: Clearly document that Falco requires privileged pods
 
 Storage Configuration
-```yaml
-# Use premium storage for production
+yaml# Use premium storage for production
 global:
   storageClass: managed-premium  # Azure Premium SSD
 
@@ -287,8 +270,7 @@ global:
 global:
   storageClass: azurefile
 Resource Sizing Guidance
-```yaml
-# Minimum for basic setup (development)
+yaml# Minimum for basic setup (development)
 # 3 nodes × Standard_D4s_v3 (4 vCPUs, 16GB RAM)
 
 # Recommended for production
@@ -311,8 +293,7 @@ Encryption at rest available
 Right to deletion supported
 
 Audit Logging
-```yaml
-# Enable Kubernetes audit logs for monitoring namespace
+yaml# Enable Kubernetes audit logs for monitoring namespace
 apiVersion: audit.k8s.io/v1
 kind: Policy
 rules:
@@ -331,8 +312,7 @@ Recovery: Restore from backup if needed
 Lessons Learned: Update security rules
 
 Response Procedures
-```bash
-# 1. Check Falco alerts
+bash# 1. Check Falco alerts
 kubectl logs -n monitoring -l app=falco --tail=100 | grep CRITICAL
 
 # 2. Review recent events
@@ -344,51 +324,48 @@ kubectl get pods -n monitoring -o wide
 # 4. Review access logs
 kubectl logs -n kube-system -l component=kube-apiserver
 
-## Security Checklist
+Security Checklist
+Pre-Deployment
 
-### Pre-Deployment
-- [ ] Strong passwords configured (no defaults)
-- [ ] Storage class explicitly set
-- [ ] Resource requests/limits defined
-- [ ] RBAC roles reviewed
-- [ ] Network policies prepared (if required)
+ Strong passwords configured (no defaults)
+ Storage class explicitly set
+ Resource requests/limits defined
+ RBAC roles reviewed
+ Network policies prepared (if required)
 
-### Post-Deployment
-- [ ] Change default passwords immediately
-- [ ] Enable TLS for external access
-- [ ] Configure backup schedule
-- [ ] Set up alerting channels (email/Slack)
-- [ ] Review Falco rules and test alerts
-- [ ] Run initial Trivy scan
-- [ ] Enable audit logging
-- [ ] Document custom configurations
+Post-Deployment
 
-### Ongoing Operations
-- [ ] Regular vulnerability scans
-- [ ] Monitor security alerts
-- [ ] Review access logs monthly
-- [ ] Update components quarterly
-- [ ] Test backup/recovery procedures
-- [ ] Security training for team
-- [ ] Incident response drills
+ Change default passwords immediately
+ Enable TLS for external access
+ Configure backup schedule
+ Set up alerting channels (email/Slack)
+ Review Falco rules and test alerts
+ Run initial Trivy scan
+ Enable audit logging
+ Document custom configurations
 
----
+Ongoing Operations
 
-## References
+ Regular vulnerability scans
+ Monitor security alerts
+ Review access logs monthly
+ Update components quarterly
+ Test backup/recovery procedures
+ Security training for team
+ Incident response drills
 
-- [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
-- [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
-- [Falco Runtime Security](https://falco.org/)
-- [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
-- [Azure AKS Security Best Practices](https://docs.microsoft.com/azure/aks/security-best-practices)
-- [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes)
 
----
+References
 
-**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
+Kubernetes Security Best Practices
+CNCF Security Whitepaper
+Falco Runtime Security
+Trivy Vulnerability Scanner
+Azure AKS Security Best Practices
+CIS Kubernetes Benchmark
 
----
 
-For configuration details, see [Configuration Guide](configuration.md).  
+Note: Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
 
-For troubleshooting security issues, see [Troubleshooting Guide](troubleshooting.md).
+For configuration details, see Configuration Guide.
+For troubleshooting security issues, see Troubleshooting Guide.
