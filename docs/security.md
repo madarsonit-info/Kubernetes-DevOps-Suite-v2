@@ -365,11 +365,19 @@ Ongoing Operations
 ---
 
 ## References
+
 - [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
 - [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
 - [Falco Runtime Security](https://falco.org/)
 - [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
+- [Azure AKS Security Best Practices](https://docs.microsoft.com/azure/aks/security-best-practices)
+- [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes)
 
 ---
 
-**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities.
+**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
+
+---
+
+For configuration details, see [Configuration Guide](configuration.md).  
+For troubleshooting security issues, see [Troubleshooting Guide](troubleshooting.md).
