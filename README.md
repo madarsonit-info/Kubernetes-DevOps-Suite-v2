@@ -367,7 +367,7 @@ See [LICENSE](./LICENSE) file for details.
 
 - **Azure Marketplace**: [Product Listing](https://marketplace.microsoft.com/en-us/product/container/madarsonitllc1614702968211.madarson-k8s-devops-suite-2-0-0?tab=Overview)
 - **Azure Portal Deployment**: [Direct Deploy Link](https://portal.azure.com/#create/madarsonitllc1614702968211.madarson-k8s-devops-suite-2-0-0madarson-k8s-devops-suite-2-0-0)
-- **Madarson IT LLC**: [Company Website](https://madarson.com)
+- **Madarson IT LLC**: [Company Website](https://madarsonit.com)
 
 ---
 
