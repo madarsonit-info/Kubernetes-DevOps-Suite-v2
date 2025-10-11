@@ -32,7 +32,7 @@ grafana:
     GF_USERS_ALLOW_SIGN_UP: "false"
 Important: Never ship with default passwords. Customer-configurable passwords must be set during deployment.
 
-## 2. Network & Workload Isolation
+2. Network & Workload Isolation
 Namespaces
 
 Separate workloads by team or environment
@@ -87,7 +87,7 @@ yamlingress:
       hosts:
         - grafana.yourdomain.com
 
-## 3. Image & Supply Chain Security
+3. Image & Supply Chain Security
 Container Image Security
 
 Scan images: Use Trivy or equivalent to detect vulnerabilities before deployment
@@ -109,7 +109,7 @@ kubectl logs -n monitoring -l app=trivy --tail=100
 # Export results for compliance
 kubectl logs -n monitoring trivy-scanner-xxx > scan-results.json
 
-## 4. Runtime Security
+4. Runtime Security
 Falco Runtime Detection
 
 Enable runtime detection of suspicious activity (e.g., unexpected kubectl execution)
@@ -164,7 +164,7 @@ yamlsecurityContext:
     drop:
     - ALL
 
-## 5. Data Protection
+5. Data Protection
 Secrets Management
 
 Encrypt secrets at rest: Enable etcd encryption for Kubernetes secrets
@@ -188,7 +188,7 @@ spec:
       authType: ManagedIdentity
       vaultUrl: https://your-keyvault.vault.azure.net
 
-## 6. Monitoring & Logging
+6. Monitoring & Logging
 Centralized Logging
 
 Use Loki + Promtail for log aggregation
@@ -214,7 +214,7 @@ kubectl logs -f -n monitoring -l app=falco
 kubectl port-forward -n monitoring svc/alertmanager 9093:9093
 # Visit: http://localhost:9093
 
-## 7. Cluster & Node Hardening
+7. Cluster & Node Hardening
 Kubernetes Updates
 
 Keep Kubernetes updated: Apply control plane and node patches promptly
@@ -235,7 +235,7 @@ Enable Azure Defender for Kubernetes
 Configure diagnostic settings
 
 
-## 8. CI/CD & Deployment Security
+8. CI/CD & Deployment Security
 Shift-Left Security
 
 Scan Helm charts and manifests for misconfigurations before deployment
@@ -262,7 +262,7 @@ helm install k8s-devops-suite ./helm-chart \
   --atomic \
   --timeout 10m
 
-## 9. Azure Marketplace-Specific Recommendations
+9. Azure Marketplace-Specific Recommendations
 Secure Defaults
 
 Customer-configurable passwords: Ensure Grafana and other components never ship with defaults
@@ -285,7 +285,7 @@ yaml# Minimum for basic setup (development)
 # Recommended for production
 # 5+ nodes × Standard_D8s_v3 (8 vCPUs, 32GB RAM)
 
-## 10. Compliance & Audit
+10. Compliance & Audit
 CIS Benchmark Alignment
 
 ✅ Non-root containers
@@ -310,7 +310,7 @@ rules:
   namespaces: ["monitoring"]
   verbs: ["create", "update", "patch", "delete"]
 
-## 11. Incident Response
+11. Incident Response
 Security Event Monitoring
 
 Detection: Falco triggers alert
@@ -321,8 +321,7 @@ Recovery: Restore from backup if needed
 Lessons Learned: Update security rules
 
 Response Procedures
-bash
-# 1. Check Falco alerts
+bash# 1. Check Falco alerts
 kubectl logs -n monitoring -l app=falco --tail=100 | grep CRITICAL
 
 # 2. Review recent events
@@ -365,16 +364,17 @@ Ongoing Operations
  Incident response drills
 
 
-## References
-- [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
-- [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
-- [Falco Runtime Security](https://falco.org/)
-- [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
-- [Azure AKS Security Best Practices](https://docs.microsoft.com/azure/aks/security-best-practices/)
-- [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes/)
+References
+
+Kubernetes Security Best Practices
+CNCF Security Whitepaper
+Falco Runtime Security
+Trivy Vulnerability Scanner
+Azure AKS Security Best Practices
+CIS Kubernetes Benchmark
 
 
 Note: Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
 
-For configuration details, see [Configuration Guide](./configuration.md) - Customize your deployment
-For troubleshooting security issues, see [Troubleshooting Guide](./troubleshooting.md) - Resolve common issues
+For configuration details, see Configuration Guide.
+For troubleshooting security issues, see Troubleshooting Guide.
