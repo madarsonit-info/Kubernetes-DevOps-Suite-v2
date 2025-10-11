@@ -24,7 +24,7 @@ Grafana Security
 yaml# Strong password requirements
 grafana:
   adminPassword: "UseAStrongPasswordHere!"  # CHANGE THIS!
-  
+
   env:
     GF_SECURITY_ADMIN_PASSWORD__FILE: /etc/secrets/admin-password
     GF_AUTH_ANONYMOUS_ENABLED: "false"
@@ -118,10 +118,10 @@ Custom rules: Tailor detection rules to your environment
 
 yamlfalco:
   enabled: true  # Set to false if privileged pods not allowed
-  
+
   ebpf:
     enabled: true  # Recommended over kernel module
-  
+
   customRules:
     enabled: true
 Custom Falco Rules for DevOps Suite
@@ -362,19 +362,14 @@ Ongoing Operations
  Test backup/recovery procedures
  Security training for team
  Incident response drills
+---
 
+## References
+- [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
+- [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
+- [Falco Runtime Security](https://falco.org/)
+- [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
 
-References
+---
 
-Kubernetes Security Best Practices
-CNCF Security Whitepaper
-Falco Runtime Security
-Trivy Vulnerability Scanner
-Azure AKS Security Best Practices
-CIS Kubernetes Benchmark
-
-
-Note: Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
-
-For configuration details, see Configuration Guide.
-For troubleshooting security issues, see Troubleshooting Guide.
+**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities.
