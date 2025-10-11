@@ -374,7 +374,7 @@ kubectl logs -n kube-system -l component=kube-apiserver
 
 ---
 
-## References
+## 📚 References
 
 - [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
 - [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
@@ -385,10 +385,11 @@ kubectl logs -n kube-system -l component=kube-apiserver
 
 ---
 
-**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
+**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities.  
+This guide should be reviewed and updated as security practices evolve.
 
 ---
 
 For configuration details, see [Configuration Guide](configuration.md).  
-
 For troubleshooting security issues, see [Troubleshooting Guide](troubleshooting.md).
+
