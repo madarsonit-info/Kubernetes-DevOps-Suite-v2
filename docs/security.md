@@ -13,6 +13,7 @@ This document provides comprehensive security best practices for securing Kubern
 - **Enable RBAC**: Use Role-Based Access Control and grant the least privilege required.
 - **Use short-lived credentials**: Integrate with OIDC or Azure AD; avoid static kubeconfigs.
 - **Audit API access**: Enable audit logging to track all API server requests.
+
 ```bash
 # Verify RBAC is enabled
 kubectl get clusterrole prometheus
@@ -20,7 +21,10 @@ kubectl get clusterrolebinding prometheus
 
 # Review service account permissions
 kubectl describe clusterrole prometheus
-Grafana Security
+```
+
+### Grafana Security
+
 ```yaml
 # Strong password requirements
 grafana:
@@ -31,18 +35,23 @@ grafana:
     GF_AUTH_ANONYMOUS_ENABLED: "false"
     GF_AUTH_DISABLE_LOGIN_FORM: "false"
     GF_USERS_ALLOW_SIGN_UP: "false"
-Important: Never ship with default passwords. Customer-configurable passwords must be set during deployment.
+```
 
-2. Network & Workload Isolation
-Namespaces
+**Important:** Never ship with default passwords. Customer-configurable passwords must be set during deployment.
 
-Separate workloads by team or environment
-Use dedicated namespace for monitoring: monitoring
+---
 
-Network Policies
+## 2. Network & Workload Isolation
 
-Default to deny-all, then explicitly allow required traffic
-Restrict Prometheus, Grafana, and Loki access
+### Namespaces
+
+- Separate workloads by team or environment
+- Use dedicated namespace for monitoring: `monitoring`
+
+### Network Policies
+
+- Default to deny-all, then explicitly allow required traffic
+- Restrict Prometheus, Grafana, and Loki access
 
 ```yaml
 # Example: Restrict Prometheus access
@@ -66,12 +75,15 @@ spec:
     ports:
     - protocol: TCP
       port: 9090
-Pod Security Standards
+```
 
-Enforce baseline or restricted profiles to prevent privileged containers unless explicitly required
-Note: Falco requires privileged pods and should be explicitly enabled
+### Pod Security Standards
 
-yamlapiVersion: v1
+- Enforce baseline or restricted profiles to prevent privileged containers unless explicitly required
+- **Note:** Falco requires privileged pods and should be explicitly enabled
+
+```yaml
+apiVersion: v1
 kind: Namespace
 metadata:
   name: monitoring
@@ -79,8 +91,12 @@ metadata:
     pod-security.kubernetes.io/enforce: baseline
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
-TLS/SSL for External Access
-yamlingress:
+```
+
+### TLS/SSL for External Access
+
+```yaml
+ingress:
   enabled: true
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -88,38 +104,52 @@ yamlingress:
     - secretName: monitoring-tls
       hosts:
         - grafana.yourdomain.com
+```
 
-3. Image & Supply Chain Security
-Container Image Security
+---
 
-Scan images: Use Trivy or equivalent to detect vulnerabilities before deployment
-Signed images: Adopt image signing (e.g., Cosign) to verify provenance
-Minimal base images: Reduce attack surface by using slim or distroless images
-Trusted registries: Pull only from approved registries
+## 3. Image & Supply Chain Security
 
-Trivy Configuration
-yamltrivy:
+### Container Image Security
+
+- **Scan images**: Use Trivy or equivalent to detect vulnerabilities before deployment
+- **Signed images**: Adopt image signing (e.g., Cosign) to verify provenance
+- **Minimal base images**: Reduce attack surface by using slim or distroless images
+- **Trusted registries**: Pull only from approved registries
+
+### Trivy Configuration
+
+```yaml
+trivy:
   enabled: true
   schedule: "0 2 * * *"  # Daily at 2 AM
   scanConfig:
     severity: "CRITICAL,HIGH"
     ignoreUnfixed: false
-Review Scan Results
+```
+
+### Review Scan Results
+
 ```bash
 # Check scan results
 kubectl logs -n monitoring -l app=trivy --tail=100
 
 # Export results for compliance
 kubectl logs -n monitoring trivy-scanner-xxx > scan-results.json
+```
 
-4. Runtime Security
-Falco Runtime Detection
+---
 
-Enable runtime detection of suspicious activity (e.g., unexpected kubectl execution)
-Optional privileged workloads: Clearly document that Falco requires privileged pods and is disabled by default in basic setup
-Custom rules: Tailor detection rules to your environment
+## 4. Runtime Security
 
-yamlfalco:
+### Falco Runtime Detection
+
+- Enable runtime detection of suspicious activity (e.g., unexpected kubectl execution)
+- **Optional privileged workloads**: Clearly document that Falco requires privileged pods and is disabled by default in basic setup
+- **Custom rules**: Tailor detection rules to your environment
+
+```yaml
+falco:
   enabled: true  # Set to false if privileged pods not allowed
 
   ebpf:
@@ -127,7 +157,10 @@ yamlfalco:
 
   customRules:
     enabled: true
-Custom Falco Rules for DevOps Suite
+```
+
+### Custom Falco Rules for DevOps Suite
+
 ```yaml
 # Place in helm-chart/rules/devops-security.yaml
 - rule: Unauthorized Access to Prometheus Data
@@ -151,13 +184,16 @@ Custom Falco Rules for DevOps Suite
     Grafana configuration modified
     (user=%user.name process=%proc.name file=%fd.name)
   priority: CRITICAL
-Resource Limits
+```
 
-Define CPU/memory requests and limits to prevent noisy-neighbor DoS
-Read-only filesystems: Run containers with read-only root filesystems
-Drop unnecessary Linux capabilities
+### Resource Limits
 
-yamlsecurityContext:
+- Define CPU/memory requests and limits to prevent noisy-neighbor DoS
+- **Read-only filesystems**: Run containers with read-only root filesystems
+- Drop unnecessary Linux capabilities
+
+```yaml
+securityContext:
   runAsNonRoot: true
   runAsUser: 65534
   fsGroup: 65534
@@ -167,22 +203,31 @@ yamlsecurityContext:
   capabilities:
     drop:
     - ALL
+```
 
-5. Data Protection
-Secrets Management
+---
 
-Encrypt secrets at rest: Enable etcd encryption for Kubernetes secrets
-External secret managers: Integrate with Azure Key Vault or HashiCorp Vault for sensitive credentials
-TLS everywhere: Ensure all traffic between components is encrypted
+## 5. Data Protection
 
-Using Kubernetes Secrets
+### Secrets Management
+
+- **Encrypt secrets at rest**: Enable etcd encryption for Kubernetes secrets
+- **External secret managers**: Integrate with Azure Key Vault or HashiCorp Vault for sensitive credentials
+- **TLS everywhere**: Ensure all traffic between components is encrypted
+
+### Using Kubernetes Secrets
+
 ```bash
 # Create secret for sensitive data
 kubectl create secret generic alertmanager-config \
   --from-literal=slack-webhook='https://hooks.slack.com/...' \
   -n monitoring
-External Secrets Operator (Recommended)
-yamlapiVersion: external-secrets.io/v1beta1
+```
+
+### External Secrets Operator (Recommended)
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
   name: azure-keyvault
@@ -192,25 +237,29 @@ spec:
     azurekv:
       authType: ManagedIdentity
       vaultUrl: https://your-keyvault.vault.azure.net
+```
 
-6. Monitoring & Logging
-Centralized Logging
+---
 
-Use Loki + Promtail for log aggregation
-Configure appropriate retention policies
-Monitor for security-related log patterns
+## 6. Monitoring & Logging
 
-Metrics & Alerts
+### Centralized Logging
 
-Use Prometheus + Alertmanager for anomaly detection
-Set up alerts for security events
-Monitor component health
+- Use Loki + Promtail for log aggregation
+- Configure appropriate retention policies
+- Monitor for security-related log patterns
 
-Security Dashboards
+### Metrics & Alerts
 
-Pre-configured Grafana dashboards provide compliance visibility
-Custom dashboards for Falco events
-Track vulnerability scan results
+- Use Prometheus + Alertmanager for anomaly detection
+- Set up alerts for security events
+- Monitor component health
+
+### Security Dashboards
+
+- Pre-configured Grafana dashboards provide compliance visibility
+- Custom dashboards for Falco events
+- Track vulnerability scan results
 
 ```bash
 # Monitor Falco events in real-time
@@ -219,47 +268,53 @@ kubectl logs -f -n monitoring -l app=falco
 # Check AlertManager for security alerts
 kubectl port-forward -n monitoring svc/alertmanager 9093:9093
 # Visit: http://localhost:9093
+```
 
-7. Cluster & Node Hardening
-Kubernetes Updates
+---
 
-Keep Kubernetes updated: Apply control plane and node patches promptly
-Test updates in non-production first
-Review changelogs for security fixes
+## 7. Cluster & Node Hardening
 
-Node Security
+### Kubernetes Updates
 
-Harden nodes: Disable unused ports, enforce OS patching
-Use minimal OS images: Azure Linux, Ubuntu minimal, or similar
-Restrict metadata access: Block pod access to cloud instance metadata unless required
+- **Keep Kubernetes updated**: Apply control plane and node patches promptly
+- Test updates in non-production first
+- Review changelogs for security fixes
 
-AKS-Specific Recommendations
+### Node Security
 
-Enable Azure Policy for AKS
-Use managed identities instead of service principals
-Enable Azure Defender for Kubernetes
-Configure diagnostic settings
+- **Harden nodes**: Disable unused ports, enforce OS patching
+- **Use minimal OS images**: Azure Linux, Ubuntu minimal, or similar
+- **Restrict metadata access**: Block pod access to cloud instance metadata unless required
 
+### AKS-Specific Recommendations
 
-8. CI/CD & Deployment Security
-Shift-Left Security
+- Enable Azure Policy for AKS
+- Use managed identities instead of service principals
+- Enable Azure Defender for Kubernetes
+- Configure diagnostic settings
 
-Scan Helm charts and manifests for misconfigurations before deployment
-Use tools like helm lint, kubeval, or kubesec
-Integrate security scanning in CI/CD pipelines
+---
 
-Admission Control
+## 8. CI/CD & Deployment Security
 
-Use OPA/Gatekeeper or Kyverno to enforce security policies
-Validate resource requests/limits
-Enforce naming conventions and labels
+### Shift-Left Security
 
-Deployment Best Practices
+- Scan Helm charts and manifests for misconfigurations before deployment
+- Use tools like `helm lint`, `kubeval`, or `kubesec`
+- Integrate security scanning in CI/CD pipelines
 
-Atomic deployments: Use Helm's --atomic flag
-Ensure pods can schedule with right-sized resources
-Test in staging before production
-Maintain rollback procedures
+### Admission Control
+
+- Use OPA/Gatekeeper or Kyverno to enforce security policies
+- Validate resource requests/limits
+- Enforce naming conventions and labels
+
+### Deployment Best Practices
+
+- **Atomic deployments**: Use Helm's `--atomic` flag
+- Ensure pods can schedule with right-sized resources
+- Test in staging before production
+- Maintain rollback procedures
 
 ```bash
 # Deploy with atomic flag
@@ -268,16 +323,21 @@ helm install k8s-devops-suite ./helm-chart \
   --values values.yaml \
   --atomic \
   --timeout 10m
+```
 
-9. Azure Marketplace-Specific Recommendations
-Secure Defaults
+---
 
-Customer-configurable passwords: Ensure Grafana and other components never ship with defaults
-Explicit storage classes: Set storageClassName (e.g., managed-premium) to avoid PVCs stuck in Pending
-Secure defaults: Provide resource requests/limits that work on standard AKS node pools
-Optional privileged workloads: Clearly document that Falco requires privileged pods
+## 9. Azure Marketplace-Specific Recommendations
 
-Storage Configuration
+### Secure Defaults
+
+- **Customer-configurable passwords**: Ensure Grafana and other components never ship with defaults
+- **Explicit storage classes**: Set `storageClassName` (e.g., `managed-premium`) to avoid PVCs stuck in Pending
+- **Secure defaults**: Provide resource requests/limits that work on standard AKS node pools
+- **Optional privileged workloads**: Clearly document that Falco requires privileged pods
+
+### Storage Configuration
+
 ```yaml
 # Use premium storage for production
 global:
@@ -286,31 +346,39 @@ global:
 # Or Azure Files for shared storage
 global:
   storageClass: azurefile
-Resource Sizing Guidance
+```
+
+### Resource Sizing Guidance
+
 ```yaml
 # Minimum for basic setup (development)
 # 3 nodes × Standard_D4s_v3 (4 vCPUs, 16GB RAM)
 
 # Recommended for production
 # 5+ nodes × Standard_D8s_v3 (8 vCPUs, 32GB RAM)
+```
 
-10. Compliance & Audit
-CIS Benchmark Alignment
+---
 
-✅ Non-root containers
-✅ Read-only root filesystem (where applicable)
-✅ No privilege escalation
-✅ Resource limits defined
-✅ Network policies available
+## 10. Compliance & Audit
 
-GDPR Considerations
+### CIS Benchmark Alignment
 
-Data retention policies configured
-Access logging enabled
-Encryption at rest available
-Right to deletion supported
+- ✅ Non-root containers
+- ✅ Read-only root filesystem (where applicable)
+- ✅ No privilege escalation
+- ✅ Resource limits defined
+- ✅ Network policies available
 
-Audit Logging
+### GDPR Considerations
+
+- Data retention policies configured
+- Access logging enabled
+- Encryption at rest available
+- Right to deletion supported
+
+### Audit Logging
+
 ```yaml
 # Enable Kubernetes audit logs for monitoring namespace
 apiVersion: audit.k8s.io/v1
@@ -319,18 +387,23 @@ rules:
 - level: RequestResponse
   namespaces: ["monitoring"]
   verbs: ["create", "update", "patch", "delete"]
+```
 
-11. Incident Response
-Security Event Monitoring
+---
 
-Detection: Falco triggers alert
-Analysis: Review logs and metrics in Grafana
-Containment: Apply network policies
-Eradication: Remove threat
-Recovery: Restore from backup if needed
-Lessons Learned: Update security rules
+## 11. Incident Response
 
-Response Procedures
+### Security Event Monitoring
+
+1. **Detection**: Falco triggers alert
+2. **Analysis**: Review logs and metrics in Grafana
+3. **Containment**: Apply network policies
+4. **Eradication**: Remove threat
+5. **Recovery**: Restore from backup if needed
+6. **Lessons Learned**: Update security rules
+
+### Response Procedures
+
 ```bash
 # 1. Check Falco alerts
 kubectl logs -n monitoring -l app=falco --tail=100 | grep CRITICAL
@@ -343,6 +416,9 @@ kubectl get pods -n monitoring -o wide
 
 # 4. Review access logs
 kubectl logs -n kube-system -l component=kube-apiserver
+```
+
+---
 
 ## Security Checklist
 
@@ -374,7 +450,7 @@ kubectl logs -n kube-system -l component=kube-apiserver
 
 ---
 
-## 📚 References
+## References
 
 - [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/overview/)
 - [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
@@ -385,11 +461,9 @@ kubectl logs -n kube-system -l component=kube-apiserver
 
 ---
 
-**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities.  
-This guide should be reviewed and updated as security practices evolve.
+**Note:** Security is an ongoing process. Regularly review cluster posture, update dependencies, and monitor for new vulnerabilities. This guide should be reviewed and updated as security practices evolve.
 
 ---
 
 For configuration details, see [Configuration Guide](configuration.md).  
 For troubleshooting security issues, see [Troubleshooting Guide](troubleshooting.md).
-
