@@ -456,7 +456,7 @@ kubectl logs -n kube-system -l component=kube-apiserver
 - [CNCF Security Whitepaper](https://github.com/cncf/tag-security)
 - [Falco Runtime Security](https://falco.org/)
 - [Trivy Vulnerability Scanner](https://aquasecurity.github.io/trivy/)
-- [Azure AKS Security Best Practices](https://docs.microsoft.com/azure/aks/security-best-practices)
+- [Azure AKS Security Best Practices](https://learn.microsoft.com/en-us/azure/aks/operator-best-practices-cluster-security?tabs=azure-cli)
 - [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes)
 
 ---
