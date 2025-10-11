@@ -14,6 +14,8 @@ This document provides comprehensive security best practices for securing Kubern
 - **Use short-lived credentials**: Integrate with OIDC or Azure AD; avoid static kubeconfigs.
 - **Audit API access**: Enable audit logging to track all API server requests.
 ```bash
+```
+
 # Verify RBAC is enabled
 kubectl get clusterrole prometheus
 kubectl get clusterrolebinding prometheus
@@ -21,7 +23,10 @@ kubectl get clusterrolebinding prometheus
 # Review service account permissions
 kubectl describe clusterrole prometheus
 Grafana Security
-yaml# Strong password requirements
+```yaml
+```
+
+# Strong password requirements
 grafana:
   adminPassword: "UseAStrongPasswordHere!"  # CHANGE THIS!
 
@@ -43,7 +48,10 @@ Network Policies
 Default to deny-all, then explicitly allow required traffic
 Restrict Prometheus, Grafana, and Loki access
 
-yaml# Example: Restrict Prometheus access
+```yaml
+```
+
+# Example: Restrict Prometheus access
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -103,7 +111,10 @@ yamltrivy:
     severity: "CRITICAL,HIGH"
     ignoreUnfixed: false
 Review Scan Results
-bash# Check scan results
+```bash
+```
+
+# Check scan results
 kubectl logs -n monitoring -l app=trivy --tail=100
 
 # Export results for compliance
@@ -125,7 +136,10 @@ yamlfalco:
   customRules:
     enabled: true
 Custom Falco Rules for DevOps Suite
-yaml# Place in helm-chart/rules/devops-security.yaml
+```yaml
+```
+
+# Place in helm-chart/rules/devops-security.yaml
 - rule: Unauthorized Access to Prometheus Data
   desc: Detect unauthorized access to Prometheus data directory
   condition: >
@@ -172,7 +186,10 @@ External secret managers: Integrate with Azure Key Vault or HashiCorp Vault for 
 TLS everywhere: Ensure all traffic between components is encrypted
 
 Using Kubernetes Secrets
-bash# Create secret for sensitive data
+```bash
+```
+
+# Create secret for sensitive data
 kubectl create secret generic alertmanager-config \
   --from-literal=slack-webhook='https://hooks.slack.com/...' \
   -n monitoring
@@ -207,7 +224,10 @@ Pre-configured Grafana dashboards provide compliance visibility
 Custom dashboards for Falco events
 Track vulnerability scan results
 
-bash# Monitor Falco events in real-time
+```bash
+```
+
+# Monitor Falco events in real-time
 kubectl logs -f -n monitoring -l app=falco
 
 # Check AlertManager for security alerts
@@ -255,7 +275,10 @@ Ensure pods can schedule with right-sized resources
 Test in staging before production
 Maintain rollback procedures
 
-bash# Deploy with atomic flag
+```bash
+```
+
+# Deploy with atomic flag
 helm install k8s-devops-suite ./helm-chart \
   --namespace monitoring \
   --values values.yaml \
@@ -271,7 +294,10 @@ Secure defaults: Provide resource requests/limits that work on standard AKS node
 Optional privileged workloads: Clearly document that Falco requires privileged pods
 
 Storage Configuration
-yaml# Use premium storage for production
+```yaml
+```
+
+# Use premium storage for production
 global:
   storageClass: managed-premium  # Azure Premium SSD
 
@@ -279,7 +305,10 @@ global:
 global:
   storageClass: azurefile
 Resource Sizing Guidance
-yaml# Minimum for basic setup (development)
+```yaml
+```
+
+# Minimum for basic setup (development)
 # 3 nodes × Standard_D4s_v3 (4 vCPUs, 16GB RAM)
 
 # Recommended for production
@@ -302,7 +331,10 @@ Encryption at rest available
 Right to deletion supported
 
 Audit Logging
-yaml# Enable Kubernetes audit logs for monitoring namespace
+```yaml
+```
+
+# Enable Kubernetes audit logs for monitoring namespace
 apiVersion: audit.k8s.io/v1
 kind: Policy
 rules:
@@ -321,7 +353,10 @@ Recovery: Restore from backup if needed
 Lessons Learned: Update security rules
 
 Response Procedures
-bash# 1. Check Falco alerts
+```bash
+```
+
+# 1. Check Falco alerts
 kubectl logs -n monitoring -l app=falco --tail=100 | grep CRITICAL
 
 # 2. Review recent events
