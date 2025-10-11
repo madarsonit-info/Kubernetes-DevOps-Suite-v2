@@ -56,28 +56,38 @@ This suite deploys a complete observability stack across your Kubernetes cluster
 ## 📦 Repository Structure
 
 ```
-├── helm-chart/              # Main Helm chart for deployment
-│   ├── templates/           # Kubernetes manifests
-│   │   ├── prometheus/      # Prometheus monitoring stack
-│   │   ├── grafana/         # Grafana dashboards & configs
-│   │   ├── logging/         # Loki & Promtail
-│   │   ├── falco/           # Runtime security
-│   │   └── trivy/           # Vulnerability scanning
-│   ├── values.yaml          # Configuration values
-│   └── Chart.yaml           # Chart metadata
-├── marketplace-assets/      # Azure Marketplace resources
-│   ├── logos/               # Product logos
-│   ├── screenshots/         # Product screenshots
-│   └── documents/           # Marketing documentation
-├── scripts/                 # Deployment & utility scripts
+.
+├── CHANGELOG.md              # Version history and changes
+├── CONTRIBUTING.md           # Contribution guidelines
+├── CUSTOMIZATION_GUIDE.md    # Customization instructions
+├── LICENSE                   # License information
+├── README.md                 # This file
+├── SECURITY.md              # Security policies and reporting
+├── project-overview.md      # Detailed project overview
+├── azure/                   # Azure-specific resources
+│   ├── scripts/             # Azure deployment scripts
+│   │   └── deploy.sh        # Main deployment script
+│   └── templates/           # Azure ARM templates
+│       └── arm-template.json
 ├── docs/                    # Documentation
-├── tests/                   # Test suites
-│   ├── unit/                # Unit tests
-│   ├── integration/         # Integration tests
-│   └── e2e/                 # End-to-end tests
-├── mainTemplate.json        # Azure ARM template
-├── createUIDefinition.json  # Azure Portal UI definition
-└── porter.yaml              # Porter bundle definition
+│   ├── architecture.md      # System architecture
+│   ├── best-practices.md    # Best practices guide
+│   ├── configuration.md     # Configuration reference
+│   ├── deployment-guide.md  # Deployment instructions
+│   ├── security.md          # Security guidelines
+│   └── troubleshooting.md   # Troubleshooting guide
+├── examples/                # Example configurations
+│   ├── advanced-config/     # Advanced setup examples
+│   └── basic-setup/         # Basic setup examples
+│       ├── README.md
+│       ├── deploy.sh
+│       ├── values.yaml
+│       └── verify.sh
+└── kubernetes/              # Kubernetes resources
+    ├── helm/                # Helm charts
+    └── manifests/           # Kubernetes manifests
+        ├── deployment.yaml
+        └── service.yaml
 ```
 
 ---
@@ -106,32 +116,47 @@ This suite deploys a complete observability stack across your Kubernetes cluster
 3. Review and create the deployment
 4. Access Grafana dashboard after deployment completes
 
-### Option 2: Helm Chart Installation
+### Option 2: Azure Deployment Script
 
 ```bash
-# Add credentials (if required)
-kubectl create -f k8s-devops-creds.yaml
+# Clone the repository
+git clone https://github.com/madarsonit-info/Kubernetes-DevOps-Suite-v2.git
+cd Kubernetes-DevOps-Suite-v2
 
-# Install the Helm chart
-helm install k8s-devops-suite ./helm-chart \
+# Run Azure deployment script
+./azure/scripts/deploy.sh \
+  --resource-group <your-rg> \
+  --cluster-name <your-cluster> \
+  --location <azure-region>
+```
+
+### Option 3: Helm Chart Installation
+
+```bash
+# Install using Helm
+helm install k8s-devops-suite ./kubernetes/helm \
   --namespace monitoring \
   --create-namespace \
-  --values helm-chart/values.yaml
+  --values ./examples/basic-setup/values.yaml
 
 # Verify installation
 kubectl get pods -n monitoring
 ```
 
-### Option 3: Porter Bundle
+### Option 4: Basic Setup Example
 
 ```bash
-# Install using Porter
-porter install k8s-devops-suite \
-  --reference ghcr.io/madarsonit-info/k8s-devops-suite:v2.0.0 \
-  --param kubeconfig=$KUBECONFIG
+# Navigate to basic setup example
+cd examples/basic-setup
 
-# Check bundle status
-porter installation show k8s-devops-suite
+# Review and customize values.yaml
+vim values.yaml
+
+# Deploy using the example script
+./deploy.sh
+
+# Verify deployment
+./verify.sh
 ```
 
 ---
@@ -140,7 +165,7 @@ porter installation show k8s-devops-suite
 
 ### Custom Values
 
-Edit `helm-chart/values.yaml` to customize:
+Edit your values file to customize the deployment:
 
 ```yaml
 # Example customizations
@@ -158,14 +183,16 @@ loki:
 
 falco:
   enabled: true
-  rules: custom  # Use custom rules from helm-chart/rules/
+  rules: custom
 ```
 
-### Security Rules
+See [CUSTOMIZATION_GUIDE.md](./CUSTOMIZATION_GUIDE.md) for detailed customization options.
 
-Custom Falco security rules can be added to:
-- `helm-chart/rules/devops-security.yaml`
-- `falco-rules.yaml`
+### Security Configuration
+
+For security best practices and hardening recommendations, see:
+- [docs/security.md](./docs/security.md) - Security guidelines
+- [SECURITY.md](./SECURITY.md) - Security policies
 
 ---
 
@@ -203,11 +230,15 @@ kubectl port-forward svc/alertmanager 9093:9093 -n monitoring
 
 ## 📖 Documentation
 
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Architecture](./docs/architecture.md)** - System architecture and design
 - **[Deployment Guide](./docs/deployment-guide.md)** - Detailed installation instructions
-- **[Configuration Guide](./docs/configuration.md)** - Customization options
+- **[Configuration Guide](./docs/configuration.md)** - Configuration options and reference
+- **[Best Practices](./docs/best-practices.md)** - Operational best practices
+- **[Security](./docs/security.md)** - Security guidelines and hardening
 - **[Troubleshooting](./docs/troubleshooting.md)** - Common issues and solutions
-- **[Security Best Practices](./docs/security.md)** - Hardening recommendations
-- **[Project Overview](./project-overview.md)** - Architecture and design decisions
+- **[Project Overview](./project-overview.md)** - High-level overview and goals
 
 ---
 
@@ -250,19 +281,20 @@ kubectl port-forward svc/alertmanager 9093:9093 -n monitoring
 - Integration with CI/CD pipelines
 - Scheduled scans via CronJob
 
+For detailed security information, see [docs/security.md](./docs/security.md).
+
 ---
 
 ## 🧪 Testing
 
 ```bash
-# Run unit tests
-make test-unit
+# Run verification script (basic setup)
+cd examples/basic-setup
+./verify.sh
 
-# Run integration tests
-make test-integration
-
-# Run end-to-end tests
-make test-e2e
+# Check component health
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
 ```
 
 ---
@@ -291,6 +323,8 @@ kubectl logs <pod-name> -n monitoring
 - Verify Prometheus connectivity
 - Review Grafana logs
 
+For detailed troubleshooting, see [docs/troubleshooting.md](./docs/troubleshooting.md).
+
 ---
 
 ## 📈 Version History
@@ -300,20 +334,32 @@ kubectl logs <pod-name> -n monitoring
 - **v2.0.0** - Major release with enhanced features
 - **v1.0.6** - Previous stable version
 
-See [releases](../../releases) for detailed changelogs.
+See [CHANGELOG.md](./CHANGELOG.md) for detailed version history.
 
 ---
 
-## 🤝 Support
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](./CONTRIBUTING.md) for details on:
+- How to submit issues
+- How to submit pull requests
+- Code style guidelines
+- Development setup
+
+---
+
+## 🆘 Support
 
 - **Azure Marketplace Support**: [Contact via Azure Portal](https://portal.azure.com/#create/madarsonitllc1614702968211.madarson-k8s-devops-suite-2-0-0madarson-k8s-devops-suite-2-0-0)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/madarsonit-info/Kubernetes-DevOps-Suite-v2/issues)
-- **Documentation**: Check the `/docs` folder in this repository
+- **Documentation**: Check the [/docs](./docs) folder in this repository
+- **Security Issues**: See [SECURITY.md](./SECURITY.md) for security reporting
 
 ---
 
 ## 📄 License
 
+See [LICENSE](./LICENSE) file for details.
 
 ---
 
