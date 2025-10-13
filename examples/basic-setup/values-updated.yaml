@@ -1,0 +1,143 @@
+# Copy your existing values.yaml and modify Prometheus resources
+global:
+  namespace: monitoring
+  storageClass: default
+
+# Prometheus Configuration - REDUCED FOR SMALLER CLUSTER
+prometheus:
+  enabled: true
+  retention: 7d
+  retentionSize: 25GB
+  
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: default
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 30Gi
+  
+  # REDUCED resource requests to fit on 2-node cluster
+  resources:
+    requests:
+      cpu: 250m      # Reduced from 2000m
+      memory: 1Gi    # Reduced from 4Gi
+    limits:
+      cpu: 1000m     # Reduced from 4000m
+      memory: 2Gi    # Reduced from 8Gi
+  
+  scrapeInterval: 30s
+  evaluationInterval: 30s
+  replicas: 1
+
+# Disable Falco - requires privileged mode
+falco:
+  enabled: false
+
+falcosidekick:
+  enabled: false
+
+# Keep other components as-is
+alertmanager:
+  enabled: true
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: default
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: prom-operator
+  persistence:
+    enabled: true
+    storageClassName: default
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  replicas: 1
+
+loki:
+  enabled: true
+  retention:
+    enabled: true
+    period: 168h
+  persistence:
+    enabled: true
+    storageClassName: default
+    size: 40Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  replicas: 1
+
+promtail:
+  enabled: true
+  daemonset:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+kubeStateMetrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+nodeExporter:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+
+podSecurityPolicy:
+  enabled: false
+
+networkPolicies:
+  enabled: false
+
+ingress:
+  enabled: false
+
+highAvailability:
+  enabled: false

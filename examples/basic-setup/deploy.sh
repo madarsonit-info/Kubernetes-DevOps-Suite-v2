@@ -12,7 +12,7 @@ NC='\033[0m' # No Color
 # Configuration
 NAMESPACE="monitoring"
 RELEASE_NAME="k8s-devops-suite"
-HELM_CHART_PATH="../../helm-chart"
+HELM_CHART_PATH="/home/shola/madarson-k8s-devops-suite/helm-chart"
 VALUES_FILE="values.yaml"
 
 echo -e "${GREEN}========================================${NC}"

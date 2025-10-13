@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2025-10-13
+### Changed
+- Updated Helm chart references to version 2.0.3
+- Improved Falco configuration compatibility
+
 ## [2.0.2] - 2025-10-10
 
 ### Added
