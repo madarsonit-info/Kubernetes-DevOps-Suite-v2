@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive security best practices for securing Kubernetes clusters and the Madarson IT Kubernetes DevOps Suite v2.0.3. The goal is to help operators deploy with confidence, reduce attack surface, and maintain compliance in production environments.
+This document provides comprehensive security best practices for securing Kubernetes clusters and the Madarson IT Kubernetes DevOps Suite v2.0.5. The goal is to help operators deploy with confidence, reduce attack surface, and maintain compliance in production environments.
 
 ---
 

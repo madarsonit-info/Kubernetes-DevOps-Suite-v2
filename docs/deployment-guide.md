@@ -499,7 +499,7 @@ kubectl rollout status deployment -n monitoring
 ```bash
 # Upgrade to newer version
 porter upgrade k8s-devops-suite \
-  --reference ghcr.io/madarsonit-info/k8s-devops-suite:v2.0.3
+  --reference ghcr.io/madarsonit-info/k8s-devops-suite:v2.0.5
 
 # Check upgrade status
 porter installation show k8s-devops-suite

@@ -329,7 +329,7 @@ For detailed troubleshooting, see [docs/troubleshooting.md](./docs/troubleshooti
 
 ## 📈 Version History
 
-- **v2.0.3** - Latest stable release
+- **v2.0.5** - Latest stable release
 - **v2.0.1** - Bug fixes and improvements
 - **v2.0.0** - Major release with enhanced features
 - **v1.0.6** - Previous stable version
@@ -374,7 +374,7 @@ See [LICENSE](./LICENSE) file for details.
 ## 🏢 About
 
 **Publisher:** Madarson IT LLC  
-**Version:** 2.0.3  
+**Version:** 2.0.5  
 **Last Updated:** October 2025  
 **Category:** Kubernetes DevOps & Observability
 

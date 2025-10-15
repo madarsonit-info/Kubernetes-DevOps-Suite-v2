@@ -2,12 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.3] - 2025-10-13
+## [2.0.5] - 2025-10-13
 ### Changed
-- Updated Helm chart references to version 2.0.3
+- Updated Helm chart references to version 2.0.5
 - Improved Falco configuration compatibility
 
-## [2.0.2] - 2025-10-10
+## [2.0.5] - 2025-10-10
 
 ### Added
 - Comprehensive documentation suite
@@ -33,3 +33,20 @@ All notable changes to this project will be documented in this file.
 - Major release with enhanced monitoring
 - Improved security scanning
 - Enhanced logging capabilities
+
+## [2.0.5] - 2025-10-15
+
+### Added
+- Professional dashboard UI with gradient design
+- Direct links to monitoring services (Grafana with external IP)
+- Visual status indicators for Monitoring, Security, and Logging features
+- Helpful notes about service accessibility
+
+### Fixed
+- Falco configuration (removed k8s_audit_rules.yaml dependency)
+- Falco BPF probe path configuration
+- Improved user experience with informative dashboard
+
+### Changed
+- Dashboard now shows v2.0.5 with beautiful UI instead of plain text
+- Grafana accessible via LoadBalancer external IP
